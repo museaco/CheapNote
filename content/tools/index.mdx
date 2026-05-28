@@ -1,0 +1,35 @@
+---
+title: Hello World
+description: Your first document
+---
+
+import { ProductCardOne } from '@/components/product-cards/product-card-01.tsx'
+
+Welcome to the docs! You can start writing documents in `/content/docs`.
+
+
+## What is Next?
+
+<Cards>
+  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
+  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+</Cards>
+
+
+<Tabs items={['Javascript', 'Rust']}>
+  <Tab value="Javascript">Javascript is weird</Tab>
+  <Tab value="Rust">Rust is fast</Tab>
+</Tabs>
+
+
+
+<Tabs items={['预览','代码']}>
+  <Tab value="预览">
+    <ProductCardOne/>
+  </Tab>
+  <Tab value="代码">
+    <include  lang="tsx" meta='title="product-card-01.tsx"'>../../src/components/product-cards/product-card-01.tsx</include>
+  </Tab>
+</Tabs>
+
+

@@ -1,0 +1,44 @@
+@import 'fumadocs-ui/css/lib/default-colors.css';
+
+/* 暮色松林 (Pine Dusk) —— 极简自然主义*/
+/* 这套主题以低饱和度的暗绿色和森林绿为主。*/
+
+@theme {
+  /* 亮色模式 - 清晨松针 */
+  --color-fd-background: hsl(140, 15%, 96%);
+  --color-fd-foreground: hsl(140, 25%, 12%);
+  --color-fd-muted: hsl(140, 15%, 92%);
+  --color-fd-muted-foreground: hsl(140, 12%, 40%);
+  --color-fd-popover: hsl(140, 15%, 98%);
+  --color-fd-popover-foreground: hsl(140, 25%, 15%);
+  --color-fd-card: hsl(140, 15%, 94%);
+  --color-fd-card-foreground: hsl(140, 25%, 12%);
+  --color-fd-border: hsla(140, 15%, 80%, 50%);
+  --color-fd-primary: hsl(145, 40%, 25%); /* 深森林绿 */
+  --color-fd-primary-foreground: hsl(140, 15%, 98%);
+  --color-fd-secondary: hsl(140, 15%, 88%);
+  --color-fd-secondary-foreground: hsl(145, 40%, 25%);
+  --color-fd-accent: hsla(145, 30%, 82%, 50%);
+  --color-fd-accent-foreground: hsl(145, 40%, 20%);
+  --color-fd-ring: hsl(145, 40%, 35%);
+}
+
+.dark {
+  /* 暗色模式 - 深邃暮色 */
+  --color-fd-background: hsl(145, 18%, 7%);
+  --color-fd-foreground: hsl(140, 15%, 92%);
+  --color-fd-muted: hsl(145, 15%, 13%);
+  --color-fd-muted-foreground: hsla(140, 10%, 70%, 0.8);
+  --color-fd-popover: hsl(145, 15%, 11%);
+  --color-fd-popover-foreground: hsl(140, 12%, 88%);
+  --color-fd-card: hsl(145, 15%, 10%);
+  --color-fd-card-foreground: hsl(140, 15%, 96%);
+  --color-fd-border: hsla(145, 15%, 35%, 25%);
+  --color-fd-primary: hsl(142, 50%, 70%); /* 明亮的嫩绿点缀 */
+  --color-fd-primary-foreground: hsl(145, 25%, 8%);
+  --color-fd-secondary: hsl(145, 15%, 15%);
+  --color-fd-secondary-foreground: hsl(140, 15%, 90%);
+  --color-fd-accent: hsla(142, 40%, 35%, 25%);
+  --color-fd-accent-foreground: hsl(142, 50%, 85%);
+  --color-fd-ring: hsl(142, 40%, 50%);
+}
