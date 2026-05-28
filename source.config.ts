@@ -46,6 +46,19 @@ export const llm = defineDocs({
   },
 });
 
+export const git = defineDocs({
+  dir: 'content/git',
+  docs: {
+    schema: pageSchema,
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+  meta: {
+    schema: metaSchema,
+  },
+});
+
 export default defineConfig({
   plugins: [lastModified()],
   mdxOptions: {

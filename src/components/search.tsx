@@ -11,19 +11,18 @@ import {
   SearchDialogOverlay,
   type SharedProps,
 } from 'fumadocs-ui/components/dialog/search';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 export default function DefaultSearchDialog(props: SharedProps) {
-  const pathname = usePathname();
 
-  const params = useParams();
-  const section = pathname.split('/').at(1) || '/docs';
-  const api = `/api/search/${section}`;
+  const { name } = useParams();
+
+  const api = `/api/search/${name}`;
 
   const { search, setSearch, query } = useDocsSearch({
     type: 'fetch',
     api,
-    locale: params.lang as string,
+    // locale: params.lang as string,
   });
 
   return (
