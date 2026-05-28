@@ -1,8 +1,7 @@
-import { docsRoute, gitRoute, llmRoute, toolsRoute } from '@/lib/shared';
-import { docs, llm, tools ,git} from 'collections/server';
+import { docsRoute, llmRoute, draftRoute } from '@/lib/shared';
+import { docs, llm, draft} from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
-
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 const source = loader({
@@ -32,14 +31,14 @@ function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
 
 // ================= tools docs =================
 
-const toolSource = loader({
-  baseUrl: toolsRoute,
-  source: tools.toFumadocsSource(),
+const draftSource = loader({
+  baseUrl: draftRoute,
+  source: draft.toFumadocsSource(),
   plugins: [lucideIconsPlugin()],
 
 });
 
-function getToolPageImage(page: (typeof toolSource)['$inferPage']) {
+function getToolPageImage(page: (typeof draftSource)['$inferPage']) {
   const segments = [...page.slugs, 'image.png'];
 
   return {
@@ -48,7 +47,7 @@ function getToolPageImage(page: (typeof toolSource)['$inferPage']) {
   };
 }
 
-function getToolPageMarkdownUrl(page: (typeof toolSource)['$inferPage']) {
+function getToolPageMarkdownUrl(page: (typeof draftSource)['$inferPage']) {
   const segments = [...page.slugs, 'content.md'];
 
   return {
@@ -65,7 +64,7 @@ const LLMSource = loader({
   plugins: [lucideIconsPlugin()],
 });
 
-function getLLMPageImage(page: (typeof toolSource)['$inferPage']) {
+function getLLMPageImage(page: (typeof LLMSource)['$inferPage']) {
   const segments = [...page.slugs, 'image.png'];
 
   return {
@@ -74,7 +73,7 @@ function getLLMPageImage(page: (typeof toolSource)['$inferPage']) {
   };
 }
 
-function getLLMPageMarkdownUrl(page: (typeof toolSource)['$inferPage']) {
+function getLLMPageMarkdownUrl(page: (typeof LLMSource)['$inferPage']) {
   const segments = [...page.slugs, 'content.md'];
 
   return {
@@ -94,34 +93,11 @@ export const SourceMap = {
     getPageImage: getPageImage,
     getPageMarkdownUrl: getPageMarkdownUrl,
   },
-  tools: {
-    source: toolSource,
+  draft: {
+    source: draftSource,
     getPageImage: getToolPageImage,
     getPageMarkdownUrl: getToolPageMarkdownUrl,
   },
-  git:{
-    source: loader({
-      baseUrl: gitRoute,
-      source: git.toFumadocsSource(),
-      plugins: [lucideIconsPlugin()],
-    }),
-    getPageImage(page: (typeof toolSource)['$inferPage']) {
-      const segments = [...page.slugs, 'image.png'];
-
-      return {
-        segments,
-        url: ''
-      };
-    },
-    getPageMarkdownUrl(page: (typeof toolSource)['$inferPage']) {
-      const segments = [...page.slugs, 'content.md'];
-
-      return {
-        segments,
-        url: ''
-      };
-    }
-  }
 };
 
 export type SourceMapName = keyof typeof SourceMap;

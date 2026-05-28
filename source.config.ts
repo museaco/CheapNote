@@ -5,7 +5,6 @@ import remarkMath from 'remark-math';
 import remarkDirective from 'remark-directive';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
 
-// You can customize Zod schemas for frontmatter and `meta.json` here
 // see https://fumadocs.dev/docs/mdx/collections
 export const docs = defineDocs({
   dir: 'content/docs',
@@ -20,8 +19,8 @@ export const docs = defineDocs({
   },
 });
 
-export const tools = defineDocs({
-  dir: 'content/tools',
+export const draft = defineDocs({
+  dir: 'content/draft',
   docs: {
     schema: pageSchema,
     postprocess: {
@@ -46,25 +45,11 @@ export const llm = defineDocs({
   },
 });
 
-export const git = defineDocs({
-  dir: 'content/git',
-  docs: {
-    schema: pageSchema,
-    postprocess: {
-      includeProcessedMarkdown: true,
-    },
-  },
-  meta: {
-    schema: metaSchema,
-  },
-});
 
 export default defineConfig({
   plugins: [lastModified()],
   mdxOptions: {
-    // MDX options
     remarkPlugins: [remarkMath,remarkDirective],
-    // Place it at first, it should be executed before the syntax highlighter
     rehypePlugins: (v) => [rehypeKatex, ...v],
   },
 });

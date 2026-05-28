@@ -1,0 +1,33 @@
+---
+title: Claude Code 设置
+description: Claude Code 设置
+---
+
+## 使用CC Switch完整设置
+
+
+```json title=".claude/settings.json"
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "autoUpdatesChannel": "latest",
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "",
+    "ANTHROPIC_BASE_URL": "https://dashscope.aliyuncs.com/apps/anthropic",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "qwen3.6-flash",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "qwen3.7-max",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL_NAME": "qwen3.7-max",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL_NAME": "deepseek-v4-pro",
+    "ANTHROPIC_MODEL": "qwen3.6-plus",
+    "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+  },
+  "statusLine": {
+    "command": "npx -y ccstatusline@latest",
+    "refreshInterval": 3,
+    "type": "command"
+  }
+}
+```
