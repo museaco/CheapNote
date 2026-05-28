@@ -1,9 +1,9 @@
-import { toolSource } from '@/lib/source';
+import { LLMSource } from '@/lib/source';
 import { createTokenizer } from '@orama/tokenizers/mandarin';
 
 import { createFromSource } from 'fumadocs-core/search/server';
 
- const { GET :LLMGET, } = createFromSource(toolSource, {
+ const { GET : LLMGet } = createFromSource(LLMSource, {
   components: {
     tokenizer: createTokenizer(),
   },
@@ -28,10 +28,12 @@ import { createFromSource } from 'fumadocs-core/search/server';
   },
 });
 
+
 export async function GET(request: Request,ctx:any) {
+  const params = await ctx.params
+  console.log(params)
 
-  console.log(request)
+  return  LLMGet(request)
 
-  const t = await LLMGET(request)
-  return t;
 }
+

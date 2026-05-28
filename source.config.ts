@@ -33,6 +33,19 @@ export const tools = defineDocs({
   },
 });
 
+export const llm = defineDocs({
+  dir: 'content/llm',
+  docs: {
+    schema: pageSchema,
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+  meta: {
+    schema: metaSchema,
+  },
+});
+
 export default defineConfig({
   plugins: [lastModified()],
   mdxOptions: {

@@ -23,6 +23,7 @@ export const getSharedTabs: () => LayoutTab[] = () => {
   return [
     { url: `/docs`, title: '文档', description: 't.docsTabsDescription' },
     { url: `/tools`, title: '工具', description: 't.toolsTabsDescription' },
+    { url: `/llm`, title: 'AI&智能体', description: '大语言模型和智能体' },
   ];
 };
 

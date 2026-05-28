@@ -1,4 +1,4 @@
-import { docs, tools } from 'collections/server';
+import { docs, tools,llm } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 import { docsRoute, toolsRoute } from './shared';
@@ -48,6 +48,32 @@ export function getToolPageImage(page: (typeof toolSource)['$inferPage']) {
 }
 
 export function getToolPageMarkdownUrl(page: (typeof toolSource)['$inferPage']) {
+  const segments = [...page.slugs, 'content.md'];
+
+  return {
+    segments,
+    url: ''
+  };
+}
+
+// ================= llm docs =================
+
+export const LLMSource = loader({
+  baseUrl: '/llm',
+  source: llm.toFumadocsSource(),
+  plugins: [lucideIconsPlugin()],
+});
+
+export function getLLMPageImage(page: (typeof toolSource)['$inferPage']) {
+  const segments = [...page.slugs, 'image.png'];
+
+  return {
+    segments,
+    url: ''
+  };
+}
+
+export function getLLMPageMarkdownUrl(page: (typeof toolSource)['$inferPage']) {
   const segments = [...page.slugs, 'content.md'];
 
   return {
