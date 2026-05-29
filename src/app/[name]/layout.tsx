@@ -8,7 +8,7 @@ export default async function Layout({ children, params }: LayoutProps<'/[name]'
   const { name } = await params;
 
   const tree = SourceMap[name as SourceMapName]?.source?.getPageTree();
-  if(!tree) notFound();
+  if (!tree) notFound();
   return (
     <DocsLayout tree={tree} {...baseShareOptions()} tabs={sharedTabs}>
       {children}

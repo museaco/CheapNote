@@ -1,5 +1,5 @@
-import { docsRoute, llmRoute, draftRoute } from '@/lib/shared';
-import { docs, llm, draft} from 'collections/server';
+import { docsRoute, draftRoute, llmRoute } from '@/lib/shared';
+import { docs, draft, llm } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 
