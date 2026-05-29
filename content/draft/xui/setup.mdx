@@ -1,0 +1,41 @@
+---
+title: Setup
+description: Install
+---
+
+[xui github](https://github.com/vaxilu/x-ui)
+
+## Install
+
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
+```
+
+## 防火墙
+
+### 开放端口
+
+```bash
+sudo firewall-cmd --zone=public --add-port=8443/tcp --permanent
+```
+
+
+### 关闭端口
+
+```bash
+sudo firewall-cmd --zone=public --remove-port=8443/tcp --permanent
+```
+
+### 重启
+
+```bash
+sudo firewall-cmd --reload
+```
+
+
+### 查看当前防火墙区域内开放的端口列表
+
+```bash
+sudo firewall-cmd --zone=public --list-ports
+sudo firewall-cmd --list-ports
+```

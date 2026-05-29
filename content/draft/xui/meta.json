@@ -1,0 +1,7 @@
+{
+  "pages": [
+    "setup",
+    "cf_nginx_setup_guide"
+  ],
+  "name":"XUI"
+}
