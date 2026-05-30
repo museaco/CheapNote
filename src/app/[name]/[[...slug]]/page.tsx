@@ -15,7 +15,7 @@ export default async function Page(props: PageProps<'/[name]/[[...slug]]'>) {
 
   const { lastModified, body: MDX } = page.data;
   const markdownUrl = getPageMarkdownUrl(page).url;
-  console.log({markdownUrl})
+
 
   return (
     <DocsPage

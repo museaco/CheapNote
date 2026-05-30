@@ -7,8 +7,6 @@ export default async function Layout({ children, params }: LayoutProps<'/[name]'
 
   const { name } = await params;
 
-  console.log({name})
-
   const tree = SourceMap[name as SourceMapName]?.source?.getPageTree();
   if (!tree) notFound();
   return (
