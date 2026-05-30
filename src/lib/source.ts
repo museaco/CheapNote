@@ -1,4 +1,4 @@
-import { docsRoute, draftRoute, llmRoute } from '@/lib/shared';
+import { docsContentRoute, docsRoute, draftContentRoute, draftRoute, llmContentRoute, llmRoute } from '@/lib/shared';
 import { docs, draft, llm } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
@@ -25,7 +25,7 @@ function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
 
   return {
     segments,
-    url: ''
+    url: `${docsContentRoute}/${segments.join('/')}`,
   };
 }
 
@@ -38,7 +38,7 @@ const draftSource = loader({
 
 });
 
-function getToolPageImage(page: (typeof draftSource)['$inferPage']) {
+function getDraftPageImage(page: (typeof draftSource)['$inferPage']) {
   const segments = [...page.slugs, 'image.png'];
 
   return {
@@ -47,12 +47,12 @@ function getToolPageImage(page: (typeof draftSource)['$inferPage']) {
   };
 }
 
-function getToolPageMarkdownUrl(page: (typeof draftSource)['$inferPage']) {
+function getDraftPageMarkdownUrl(page: (typeof draftSource)['$inferPage']) {
   const segments = [...page.slugs, 'content.md'];
 
   return {
     segments,
-    url: ''
+    url: `${draftContentRoute}/${segments.join('/')}`,
   };
 }
 
@@ -78,7 +78,7 @@ function getLLMPageMarkdownUrl(page: (typeof LLMSource)['$inferPage']) {
 
   return {
     segments,
-    url: ''
+    url: `${llmContentRoute}/${segments.join('/')}`,
   };
 }
 
@@ -87,16 +87,37 @@ export const SourceMap = {
     source: LLMSource,
     getPageImage: getLLMPageImage,
     getPageMarkdownUrl: getLLMPageMarkdownUrl,
+    async getLLMText(page: (typeof LLMSource)['$inferPage']) {
+      const processed = await page.data.getText('processed');
+
+      return `# ${page.data.title} (${page.url})
+
+${processed}`;
+    }
   },
   docs: {
     source: source,
     getPageImage: getPageImage,
     getPageMarkdownUrl: getPageMarkdownUrl,
+    async getLLMText(page: (typeof source)['$inferPage']) {
+      const processed = await page.data.getText('processed');
+
+      return `# ${page.data.title} (${page.url})
+
+${processed}`;
+    }
   },
   draft: {
     source: draftSource,
-    getPageImage: getToolPageImage,
-    getPageMarkdownUrl: getToolPageMarkdownUrl,
+    getPageImage: getDraftPageImage,
+    getPageMarkdownUrl: getDraftPageMarkdownUrl,
+    async getLLMText(page: (typeof draftSource)['$inferPage']) {
+      const processed = await page.data.getText('processed');
+
+      return `# ${page.data.title} (${page.url})
+
+${processed}`;
+    }
   },
 };
 

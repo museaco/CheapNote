@@ -4,7 +4,7 @@ import { createTokenizer } from '@orama/tokenizers/mandarin';
 import { createFromSource } from 'fumadocs-core/search/server';
 
 
-export async function GET(request: Request, ctx: any) {
+export async function GET(request: Request, ctx: RouteContext<'/api/search/[name]'>) {
   const params = await ctx.params;
 
   const source = SourceMap[params.name as SourceMapName]?.source;
