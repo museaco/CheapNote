@@ -1,0 +1,335 @@
+---
+title: Qwen3-TTS本地部署
+description: Qwen3-TTS本地部署
+---
+
+
+[Qwen3-TTS github](https://github.com/QwenLM/Qwen3-TTS)
+
+
+## 前提
+
+windows英伟达RTX系列显卡使用uv部署
+
+必须先装uv工具
+
+
+持续监控GPC
+
+```bash
+nvidia-smi -l 1
+```
+
+
+检查cuda版本
+
+```bash
+nvidia-smi
+```
+## 安装
+
+```bash
+git clone https://github.com/QwenLM/Qwen3-TTS.git
+```
+
+clone下来后 修改 pyproject.toml
+
+
+```toml title="pyproject.toml"
+dependencies = [
+  "transformers==4.57.3",
+  "accelerate==1.12.0",
+  "gradio",
+  "librosa",
+    #    [!code --]
+  "torchaudio",
+  "soundfile",
+  "sox",
+  "onnxruntime",
+  "einops",
+]
+```
+
+然后依次执行以下命令
+
+
+<p className="text-sm">本地安装torch，如果有，加快安装</p>
+
+```bash
+uv pip install "D:\Download\Quark\torch-2.11.0+cu128-cp313-cp313-win_amd64.whl"
+```
+
+
+
+```bash
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+```
+
+
+```bash
+uv pip install -e .
+```
+
+
+起web界面
+
+```bash
+qwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice
+qwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign --port 8000 --ip 127.0.0.01
+qwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-Base --device cuda:0
+
+# 主要
+qwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --device cuda:0 --dtype bfloat16 --no-flash-attn
+```
+
+
+## 其他
+
+### 安装flash-attn(可选)
+
+这个在windows上有很大概率安装不成功！可先跳过，不安装不影响使用
+
+不会影响：
+
+音质
+发音
+语义
+结果
+
+只影响：
+
+推理速度
+显存占用
+
+
+如果不装 需要注意去掉不要设置flash-attn参数
+
+```python
+model = Qwen3TTSModel.from_pretrained(
+    "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+    device_map="cuda:0",
+    dtype=torch.bfloat16,
+
+    #    [!code --]
+    attn_implementation="flash_attention_2",
+    #    [!code ++]
+    attn_implementation=None,
+)
+````
+
+
+```bash
+# 1. 强行把 wheel 实体包安装到你当前激活的虚拟环境中
+uv pip install wheel
+
+# 2. 再次尝试编译（确保 $env:MAX_JOBS="4" 已设置）
+$env:MAX_JOBS="4"
+uv pip install -U flash-attn --no-build-isolation
+```
+
+### 安装sox
+
+SoX（Sound eXchange） 是一个经典的命令行音频处理工具，被称为“音频界的 ImageMagick”。
+
+官网：
+
+[SoX Official Website](https://sox.sourceforge.net/?utm_source=chatgpt.com)
+
+它可以完成很多音频操作：
+
+格式转换（wav、mp3、flac 等）
+重采样（16kHz → 24kHz）
+调整音量
+音频裁剪
+音频拼接
+降噪
+添加音效（回声、混响等）
+
+例如：
+
+```bash
+sox input.wav output.wav rate 24000
+```
+
+把音频转换为 24kHz。
+
+Windows 安装
+
+最简单：
+
+```bash
+winget install SoX.SoX
+```
+
+安装后验证：
+
+```bash
+sox --version
+```
+
+应该输出：
+
+```bash
+SoX v14.4.2
+```
+
+## 注意事项
+
+- 不要使用 `uv sync`
+- 没安装flash-attn的话注意不要加参数
+
+## 搭配VideoLingo
+
+### 写一个api接口
+
+```bash title="qwen_tts_api.py"
+ from pathlib import Path
+from tempfile import NamedTemporaryFile
+import uvicorn
+
+import soundfile as sf
+import torch
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+
+from qwen_tts import Qwen3TTSModel
+
+MODEL_ID = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+
+print("Loading model...")
+
+tts = Qwen3TTSModel.from_pretrained(
+    MODEL_ID,
+    device_map="cuda:0",
+    dtype=torch.bfloat16,
+    attn_implementation=None,
+)
+
+print("Model loaded.")
+
+print("CUDA:", torch.cuda.is_available())
+print("Current device:", torch.cuda.current_device())
+print("Device name:", torch.cuda.get_device_name(0))
+
+
+app = FastAPI(title="Qwen3-TTS API")
+
+
+class TTSRequest(BaseModel):
+    text: str
+    speaker: str = "Vivian"
+    language: str = "Auto"
+
+
+@app.post("/tts")
+async def tts_api(req: TTSRequest):
+    wavs, sr = tts.generate_custom_voice(
+        text=req.text,
+        language=req.language,
+        speaker=req.speaker,
+    )
+
+    tmp = NamedTemporaryFile(
+        delete=False,
+        suffix=".wav",
+    )
+
+    sf.write(
+        tmp.name,
+        wavs[0],
+        sr,
+    )
+
+    return FileResponse(
+        tmp.name,
+        media_type="audio/wav",
+        filename="tts.wav",
+    )
+
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "model": MODEL_ID,
+        "cuda": torch.cuda.is_available(),
+    }
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8020,
+    )
+```
+
+
+### 启动接口
+
+```bash
+python qwen_tts_api.py
+```
+
+### 测试接口
+
+```bash title="test_api.py"
+import requests
+
+r = requests.post(
+    "http://127.0.0.1:8020/tts",
+    json={
+        "text": "Anthropic 宣布完成 650 亿美元 H 轮融资，投后估值达到 9650 亿美元；Reuters 称这使其估值超过 OpenAI，并且资金将用于扩展算力基础设施、满足 Claude 产品需求。",
+        "speaker": "Vivian",
+        "language": "Auto",
+    },
+)
+
+with open("./test.wav", "wb") as f:
+    f.write(r.content)
+```
+
+### VideoLingo接入
+
+[VideoLingo Github](https://github.com/Huanshere/VideoLingo)
+
+修改`core/tts_backend/custom_tts.py`文件
+
+```bash title="core/tts_backend/custom_tts.py"
+from pathlib import Path
+
+import requests
+
+
+def custom_tts(text, save_path):
+    speech_file_path = Path(save_path)
+    speech_file_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    r = requests.post(
+        "http://127.0.0.1:8020/tts",
+        json={
+            "text": text,
+            "speaker": "Vivian",
+            "language": "Auto",
+        },
+        timeout=300,
+    )
+
+    r.raise_for_status()
+
+    with open(speech_file_path, "wb") as f:
+        f.write(r.content)
+
+    return str(speech_file_path)
+
+if __name__ == "__main__":
+    # Test example
+    custom_tts("This is a test.", "custom_tts_test.wav")
+
+```
+
+将web界面的 【TTS方法】 改成【custom_tts】即可
