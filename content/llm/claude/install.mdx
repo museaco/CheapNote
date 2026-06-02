@@ -1,0 +1,62 @@
+---
+title: 安装
+description: 安装智能体
+---
+
+
+# 概述
+
+> Claude Code 是一个代理编码工具，可以读取你的代码库、编辑文件、运行命令，并与你的开发工具集成。可在终端、IDE、桌面应用和浏览器中使用。
+
+Claude Code 是一个由 AI 驱动的编码助手，可帮助你构建功能、修复错误和自动化开发任务。它理解你的整个代码库，可以跨多个文件和工具工作以完成任务。
+
+## 安装
+
+
+
+<Tabs items={['原生安装（推荐）', 'Homebrew','WinGet','npm']}>
+  <Tab value="原生安装（推荐）">
+    macOS, Linux, WSL:
+
+    ```bash
+    curl -fsSL https://claude.ai/install.sh | bash
+    ```
+    Windows PowerShell:
+
+    ```bash
+    irm https://claude.ai/install.ps1 | iex
+    ```
+
+    Windows CMD:
+
+    ```bash
+    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+    ```
+  </Tab>
+  <Tab value="Homebrew">
+
+    ```bash
+    brew install --cask claude-code
+    ```
+  </Tab>
+
+  <Tab value="WinGet">
+
+    ```bash
+    winget install Anthropic.ClaudeCode
+    ```
+    <span className="text-sm ">
+      WinGet安装不会自动更新。定期运行winget升级Anthropic.ClaudeCode以获取最新功能和安全修复程序。
+    </span>
+  </Tab>
+
+
+  <Tab value="npm">
+
+    ```bash
+    npm install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com
+    ```
+
+  </Tab>
+</Tabs>
+

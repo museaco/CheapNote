@@ -1,0 +1,600 @@
+---
+title: 学习线路
+description: python学习线路
+---
+
+
+如果你的目标是 **Python 后端开发 + AI 应用开发**，达到能够独立开发项目、找到初中级岗位或者接私活的水平，可以按下面的知识树学习。
+
+---
+
+# 第一阶段：Python 基础（必会）
+
+这是所有后端和 AI 的基础。
+
+### 1. Python 语言
+
+必须熟练掌握：
+
+* 基本语法
+* 函数
+* 类与对象
+* 继承、多态
+* 装饰器
+* 生成器
+* 迭代器
+* 上下文管理器（with）
+* 异常处理
+* typing 类型提示
+
+例如：
+
+```python
+from typing import Optional
+
+def get_user(id: int) -> Optional[str]:
+    return "Alex"
+```
+
+---
+
+### 2. Python 标准库
+
+重点掌握：
+
+```python
+os
+pathlib
+json
+datetime
+time
+logging
+uuid
+hashlib
+base64
+collections
+asyncio
+threading
+multiprocessing
+```
+
+特别是：
+
+```python
+pathlib
+asyncio
+logging
+```
+
+工作中经常使用。
+
+---
+
+# 第二阶段：Web 后端开发
+
+建议直接学习 FastAPI。
+
+## 1. HTTP基础
+
+理解：
+
+* GET
+* POST
+* PUT
+* DELETE
+* PATCH
+
+状态码：
+
+```text
+200
+201
+400
+401
+403
+404
+500
+```
+
+理解：
+
+* Header
+* Cookie
+* Session
+* Token
+* JWT
+
+---
+
+## 2. FastAPI
+
+必须掌握：
+
+```python
+FastAPI
+APIRouter
+Depends
+Middleware
+```
+
+例如：
+
+```python
+@app.get("/users")
+def get_users():
+    return []
+```
+
+---
+
+### 3. Pydantic
+
+FastAPI 核心。
+
+```python
+from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str
+    age: int
+```
+
+必须会：
+
+* 数据校验
+* 类型转换
+* 嵌套模型
+
+---
+
+### 4. 异步编程
+
+理解：
+
+```python
+async
+await
+```
+
+例如：
+
+```python
+@app.get("/")
+async def home():
+    return {"ok": True}
+```
+
+---
+
+# 第三阶段：数据库
+
+## 1. MySQL
+
+至少掌握：
+
+```sql
+SELECT
+INSERT
+UPDATE
+DELETE
+JOIN
+GROUP BY
+ORDER BY
+```
+
+能够设计：
+
+* 用户表
+* 订单表
+* 日志表
+
+---
+
+## 2. ORM
+
+推荐：
+
+SQLAlchemy
+
+或者：
+
+SQLModel
+
+例如：
+
+```python
+class User(Base):
+    id = Column(Integer)
+    name = Column(String)
+```
+
+---
+
+## 3. Redis
+
+掌握：
+
+* String
+* Hash
+* Set
+* Expire
+
+应用：
+
+* 缓存
+* 验证码
+* Token
+
+---
+
+# 第四阶段：工程化能力
+
+这是很多人缺少的部分。
+
+## Git
+
+熟练掌握：
+
+```bash
+git clone
+git pull
+git push
+git checkout
+git merge
+git rebase
+```
+
+以及：
+
+* 分支管理
+* Pull Request
+
+---
+
+## 虚拟环境
+
+推荐：
+
+```bash
+uv
+```
+
+你最近已经在用 uv。
+
+掌握：
+
+```bash
+uv init
+uv add
+uv sync
+uv run
+uv pip
+```
+
+---
+
+## 配置管理
+
+例如：
+
+```python
+.env
+```
+
+配合：
+
+```python
+python-dotenv
+pydantic-settings
+```
+
+---
+
+## 日志
+
+必须会：
+
+```python
+logging
+```
+
+或者：
+
+Loguru
+
+---
+
+# 第五阶段：Linux
+
+AI 和后端最终都会部署到 Linux。
+
+至少掌握：
+
+```bash
+ls
+cd
+pwd
+cat
+grep
+tail
+find
+ps
+top
+kill
+chmod
+```
+
+会：
+
+```bash
+systemctl
+```
+
+查看服务。
+
+---
+
+# 第六阶段：Docker
+
+目前几乎是标配。
+
+掌握：
+
+## Dockerfile
+
+```dockerfile
+FROM python:3.12
+
+COPY . .
+
+RUN uv sync
+
+CMD ["python","main.py"]
+```
+
+---
+
+## docker-compose
+
+例如：
+
+```yaml
+services:
+  app:
+    build: .
+
+  mysql:
+    image: mysql
+```
+
+---
+
+# 第七阶段：AI开发基础
+
+这一部分是 AI 工程师的入门。
+
+---
+
+## 1. LLM基础
+
+理解：
+
+* Prompt
+* Context
+* Token
+* Temperature
+* Top P
+* Embedding
+* RAG
+* Function Calling
+* MCP
+
+---
+
+## 2. 调用模型
+
+至少会：
+
+### OpenAI兼容接口
+
+```python
+from openai import OpenAI
+```
+
+### 阿里云百炼
+
+Alibaba Cloud
+
+### Qwen
+
+Qwen
+
+### DeepSeek
+
+DeepSeek
+
+---
+
+## 3. 向量数据库
+
+理解：
+
+* Embedding
+* Similarity Search
+
+常见：
+
+Milvus
+
+Chroma
+
+FAISS
+
+---
+
+## 4. RAG
+
+必须会做：
+
+```text
+PDF
+ ↓
+切块
+ ↓
+Embedding
+ ↓
+向量库
+ ↓
+检索
+ ↓
+LLM回答
+```
+
+这是目前企业AI项目最多的场景。
+
+---
+
+## 5. Agent
+
+掌握：
+
+* Tool Calling
+* Function Calling
+* MCP
+* Multi-Agent
+
+框架：
+
+LangChain
+
+LlamaIndex
+
+AutoGen
+
+---
+
+# 第八阶段：部署能力
+
+至少会部署：
+
+## FastAPI
+
+```bash
+uvicorn main:app
+```
+
+---
+
+## Nginx
+
+理解：
+
+```nginx
+location /api {
+    proxy_pass http://127.0.0.1:8000;
+}
+```
+
+---
+
+## HTTPS
+
+理解：
+
+* 域名
+* SSL证书
+* HTTPS
+
+---
+
+# 达到初级水平的标准
+
+如果你能独立完成：
+
+```text
+FastAPI
++
+MySQL
++
+Redis
++
+JWT登录
++
+Docker部署
+```
+
+并上线到服务器。
+
+你已经具备：
+
+**Python 初级后端工程师**
+
+水平。
+
+---
+
+# 达到中级水平的标准
+
+如果你能独立完成：
+
+```text
+FastAPI
++
+MySQL
++
+Redis
++
+Docker
++
+Nginx
++
+RAG
++
+Agent
++
+向量数据库
++
+云服务器部署
+```
+
+并开发类似：
+
+* AI知识库
+* AI客服
+* 文档问答系统
+* 智能体平台
+* MCP工具平台
+
+这样的项目。
+
+你基本已经达到：
+
+**Python 后端 + AI应用开发 中级工程师** 水平。
+
+---
+
+按照现在的技术趋势，你的学习顺序建议是：
+
+```text
+Python基础
+    ↓
+FastAPI
+    ↓
+MySQL
+    ↓
+Redis
+    ↓
+Git + Linux
+    ↓
+Docker
+    ↓
+LLM API调用
+    ↓
+RAG
+    ↓
+Agent/MCP
+    ↓
+项目实战
+```
+
+这条路线大约需要 3～6 个月持续实践，就能做出具备实际价值的 AI 应用。
