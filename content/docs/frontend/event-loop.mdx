@@ -1,0 +1,705 @@
+---
+title: 事件循环
+description: 事件循环
+---
+
+前端的 **事件循环（Event Loop）** 是 JavaScript 能够实现“异步非阻塞”的核心机制。
+
+很多人以为 JS 能同时做很多事，其实：
+
+> JavaScript 主线程始终是单线程的，同一时刻只能执行一段代码。
+
+那为什么还能同时处理：
+
+* 点击事件
+* Ajax 请求
+* 定时器
+* Promise
+* DOM 渲染
+
+答案就是 **Event Loop（事件循环）**。
+
+---
+
+# 一、先理解浏览器架构
+
+浏览器并不是只有 JavaScript。
+
+大致可以看成：
+
+```text
+┌─────────────────────┐
+│      Browser        │
+├─────────────────────┤
+│ Rendering Engine    │
+│ Network Thread      │
+│ Timer Thread        │
+│ Event Thread        │
+│ Web API             │
+└─────────────────────┘
+
+          │
+          ▼
+
+┌─────────────────────┐
+│     JS Engine       │
+│     (V8)            │
+└─────────────────────┘
+```
+
+JS 只是其中一个模块。
+
+---
+
+# 二、调用栈（Call Stack）
+
+执行代码时：
+
+```js
+function a() {
+  b()
+}
+
+function b() {
+  console.log("hello")
+}
+
+a()
+```
+
+调用栈：
+
+```text
+开始
+
+Stack
+┌─────┐
+│  a  │
+└─────┘
+
+↓
+
+┌─────┐
+│  b  │
+├─────┤
+│  a  │
+└─────┘
+
+↓
+
+console.log
+
+↓
+
+清空
+```
+
+执行顺序：
+
+```text
+a
+ └─ b
+     └─ console
+```
+
+这就是同步代码。
+
+---
+
+# 三、为什么会阻塞
+
+例如：
+
+```js
+while(true) {}
+```
+
+此时：
+
+```text
+Call Stack
+┌─────────┐
+│ while   │
+└─────────┘
+```
+
+永远不会出栈。
+
+浏览器：
+
+* 页面卡死
+* 按钮不能点击
+* 定时器失效
+
+因为 JS 主线程被占满。
+
+---
+
+# 四、异步任务出现
+
+例如：
+
+```js
+setTimeout(() => {
+  console.log("A")
+}, 1000)
+
+console.log("B")
+```
+
+输出：
+
+```text
+B
+A
+```
+
+为什么？
+
+---
+
+## 执行过程
+
+### 第一步
+
+执行：
+
+```js
+setTimeout(...)
+```
+
+JS引擎发现：
+
+```js
+setTimeout
+```
+
+不是 ECMAScript 语法。
+
+属于：
+
+```text
+Web API
+```
+
+浏览器接管。
+
+---
+
+### 第二步
+
+浏览器计时
+
+```text
+Timer Thread
+
+1000ms
+```
+
+JS继续往下执行：
+
+```js
+console.log("B")
+```
+
+输出：
+
+```text
+B
+```
+
+---
+
+### 第三步
+
+1秒后：
+
+```text
+Timer Thread
+    ↓
+callback
+```
+
+不会直接执行。
+
+而是进入：
+
+```text
+Task Queue
+```
+
+任务队列。
+
+---
+
+此时：
+
+```text
+Task Queue
+
+┌───────────┐
+│ callback  │
+└───────────┘
+```
+
+---
+
+# 五、Event Loop 开始工作
+
+事件循环本质：
+
+```text
+while(true){
+
+  如果 Call Stack 空了
+
+      从队列取任务
+
+      放进 Stack 执行
+}
+```
+
+示意：
+
+```text
+Stack           Queue
+
+空          -> callback
+```
+
+Event Loop：
+
+```text
+取出 callback
+```
+
+压栈执行：
+
+```js
+console.log("A")
+```
+
+输出：
+
+```text
+A
+```
+
+---
+
+# 六、完整模型
+
+```text
+          JS Engine
+
+      ┌─────────────┐
+      │ Call Stack  │
+      └──────┬──────┘
+             │
+             ▼
+      Event Loop
+             │
+             ▼
+      ┌─────────────┐
+      │ Task Queue  │
+      └─────────────┘
+
+Web API:
+  setTimeout
+  fetch
+  click
+  DOM Event
+```
+
+---
+
+# 七、宏任务（Macro Task）
+
+浏览器把任务分等级。
+
+第一类：
+
+```text
+Macro Task
+```
+
+宏任务。
+
+常见：
+
+```js
+setTimeout
+setInterval
+click
+message
+script
+I/O
+```
+
+例如：
+
+```js
+setTimeout(() => {
+  console.log("timeout")
+})
+```
+
+回调进入：
+
+```text
+Macro Task Queue
+```
+
+---
+
+# 八、微任务（Micro Task）
+
+第二类：
+
+```text
+Micro Task
+```
+
+优先级更高。
+
+常见：
+
+```js
+Promise.then
+Promise.catch
+Promise.finally
+
+queueMicrotask()
+
+MutationObserver
+```
+
+例如：
+
+```js
+Promise.resolve().then(() => {
+  console.log("promise")
+})
+```
+
+进入：
+
+```text
+Micro Task Queue
+```
+
+---
+
+# 九、经典面试题
+
+```js
+console.log(1)
+
+setTimeout(() => {
+  console.log(2)
+})
+
+Promise.resolve().then(() => {
+  console.log(3)
+})
+
+console.log(4)
+```
+
+输出？
+
+---
+
+执行同步代码：
+
+```text
+1
+4
+```
+
+此时：
+
+```text
+Micro Queue
+┌───┐
+│ 3 │
+└───┘
+
+Macro Queue
+┌───┐
+│ 2 │
+└───┘
+```
+
+---
+
+事件循环规则：
+
+```text
+同步代码
+
+↓
+
+清空所有微任务
+
+↓
+
+执行一个宏任务
+
+↓
+
+再清空微任务
+
+↓
+
+执行下一个宏任务
+```
+
+因此：
+
+```text
+1
+4
+3
+2
+```
+
+---
+
+# 十、真正的 Event Loop 顺序
+
+浏览器每轮循环：
+
+```text
+1 执行一个 Macro Task
+
+2 执行全部 Micro Task
+
+3 UI Render
+
+4 下一轮循环
+```
+
+即：
+
+```text
+Macro Task
+    ↓
+Micro Task
+    ↓
+Render
+    ↓
+Macro Task
+```
+
+---
+
+# 十一、DOM更新为什么看不到
+
+例如：
+
+```js
+btn.onclick = () => {
+
+  div.innerText = "loading"
+
+  while(true){}
+}
+```
+
+你以为：
+
+```text
+先显示 loading
+再死循环
+```
+
+实际上：
+
+```text
+什么都不显示
+页面直接卡死
+```
+
+原因：
+
+DOM 修改后不会立即渲染。
+
+浏览器要等：
+
+```text
+当前任务结束
+↓
+微任务执行完
+↓
+开始 Render
+```
+
+但：
+
+```js
+while(true){}
+```
+
+永远不结束。
+
+所以没机会渲染。
+
+---
+
+# 十二、async/await 本质
+
+代码：
+
+```js
+async function test() {
+  console.log(1)
+
+  await Promise.resolve()
+
+  console.log(2)
+}
+
+test()
+
+console.log(3)
+```
+
+等价于：
+
+```js
+console.log(1)
+
+Promise.resolve().then(() => {
+  console.log(2)
+})
+
+console.log(3)
+```
+
+输出：
+
+```text
+1
+3
+2
+```
+
+因为：
+
+```js
+await
+```
+
+后面的代码会被包装成：
+
+```text
+Micro Task
+```
+
+---
+
+# 十三、Vue 中为什么 nextTick 能拿到最新 DOM
+
+Vue：
+
+```js
+count.value++
+
+await nextTick()
+```
+
+原理：
+
+```text
+修改响应式数据
+    ↓
+Vue收集更新
+    ↓
+放入微任务队列
+    ↓
+DOM更新
+    ↓
+nextTick回调执行
+```
+
+所以：
+
+```js
+await nextTick()
+```
+
+之后拿到的是最新 DOM。
+
+---
+
+# 十四、结合你的代码理解
+
+你之前的代码：
+
+```js
+const formRevealStyle = computed(() => {
+  const progress =
+    Math.min(
+      Math.max((scrollY.value - 80) / 340, 0),
+      1
+    )
+
+  return {
+    opacity: `${0.2 + progress * 0.8}`,
+    transform: `translate3d(
+      0,
+      ${(1 - progress) * 56}px,
+      0
+    )`,
+  }
+})
+```
+
+滚动时流程：
+
+```text
+scroll事件
+    ↓
+宏任务队列
+    ↓
+执行scroll回调
+    ↓
+修改scrollY
+    ↓
+Vue响应式触发
+    ↓
+Vue将DOM更新放入微任务
+    ↓
+当前scroll回调结束
+    ↓
+执行Vue微任务
+    ↓
+更新DOM样式
+    ↓
+浏览器Render
+    ↓
+动画出现
+```
+
+这就是为什么滚动动画会很流畅。
+
+---
+
+一句话总结：
+
+```text
+Event Loop =
+
+同步代码
+    ↓
+执行所有微任务(Promise、await、Vue更新)
+    ↓
+浏览器渲染
+    ↓
+执行下一个宏任务(setTimeout、click、scroll)
+    ↓
+继续循环
+```
+
+理解了「调用栈 → Web API → 任务队列 → 微任务 → 宏任务 → 渲染」，基本就掌握了前端事件循环的核心。
