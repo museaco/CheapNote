@@ -8,8 +8,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
-  font-family: 'DouyinSansBold';
-  src: url('/fonts/DouyinSansBold.ttf') format('truetype');
+  font-family: 'TsangerJinKai02';
+  src: url('/fonts/TsangerJinKai02-W04.ttf') format('truetype');
   font-weight: 200;
   font-style: normal;
 }
@@ -37,8 +37,8 @@ html > body[data-scroll-locked] {
 
 @theme inline {
   /* Font */
-  --font-mono: 'DouyinSansBold', ui-monospace, monospace;
-  --font-sans: 'DouyinSansBold', system-ui, sans-serif;
+  --font-mono: 'TsangerJinKai02', ui-monospace, monospace;
+  --font-sans: 'TsangerJinKai02', system-ui, sans-serif;
   --font-heading: var(--font-sans);
 
   --color-sidebar-ring: var(--sidebar-ring);
