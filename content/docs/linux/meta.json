@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "index",
+    "directory-path",
+    "file-operations",
+    "file-viewing",
+    "search",
+    "compression",
+    "permissions",
+    "package-management",
+    "process-management",
+    "network",
+    "ssh-scp",
+    "systemd",
+    "environment-variables",
+    "vim",
+    "pipes-redirect",
+    "docker",
+    "learning-path"
+  ]
+}
