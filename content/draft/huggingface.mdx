@@ -1,0 +1,62 @@
+---
+title: huggingface下载模型
+description:  huggingface下载模型
+---
+
+
+```bash
+uv pip install huggingface_hub
+```
+
+## 方式一
+
+```bash
+from huggingface_hub import snapshot_download
+
+if __name__ == '__main__':
+    # snapshot_download(repo_id="apple/FastVLM-7B", local_dir="./apple/FastVLM-7B")
+    # snapshot_download(repo_id="Tongyi-MAI/Z-Image-Turbo", local_dir="./Tongyi-MAI/Z-Image-Turbo")
+    snapshot_download(repo_id="FireRedTeam/FireRed-Image-Edit-1.1-ComfyUI", local_dir="./FireRedTeam/FireRed-Image-Edit-1.1-ComfyUI")
+
+```
+
+## 方式二：带过滤
+
+
+```bash
+from huggingface_hub import snapshot_download
+
+if __name__ == '__main__':
+
+    # 1. 定义你要筛选的文件夹通配符
+    # 这里的 "文件夹名/*" 表示只下载该文件夹下的所有内容
+    filters = [
+        "hunyuan3d-delight-v2-0/*",
+        "hunyuan3d-dit-v2-0/*",
+        "hunyuan3d-paint-v2-0/*"
+    ]
+
+    print("开始打包下载指定的三个模型...")
+
+    # 2. 只需调用一次，把大仓库拉下来
+    snapshot_download(
+        repo_id="tencent/Hunyuan3D-2",  # 假设这是总仓库 ID
+        local_dir="./tencent/Hunyuan3D-2",  # 下载到本地的总目录
+        allow_patterns=filters,
+    )
+
+    print("✨ 过滤下载完成！")
+
+```
+
+## 方式三：命令行
+
+```bash
+hf download tencent/Hunyuan3D-2 --include "hunyuan3d-dit-v2-0/*" --local-dir ./tencent/Hunyuan3D-2
+```
+
+如果出现
+
+`huggingface_hub.errors.FileMetadataError: Distant resource does not seem to be on huggingface.co. It is possible that a configuration issue prevents you from downloading resources from https://huggingface.co. Please check your firewall and proxy settings and make sure your SSL certificates are updated.`
+
+使用方式三
