@@ -9,6 +9,36 @@ description: 镜像
 https://mirrors.nju.edu.cn/pytorch/whl/
 ```
 
+---
+
 ```bash
 pip install torch torchvision torchaudio --index-url https://mirrors.nju.edu.cn/pytorch/whl/cu124
+```
+
+
+
+```bash
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+```bash
+pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://mirrors.nju.edu.cn/pytorch/whl/cu124
+```
+
+官方
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+```
+
+推荐命令（清华 TUNA PyTorch 专用源 + 通用源兜底）
+
+```bash
+pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --extra-index-url https://pypi.tuna.tsinghua.edu.cn/pytorch/whl/cu124 --extra-index-url https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+备选方案（南京大学镜像）
+
+```bash
+pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --extra-index-url https://mirrors.nju.edu.cn/pytorch/whl/cu124 --extra-index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```

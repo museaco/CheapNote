@@ -1,0 +1,27 @@
+---
+title: Conda
+description: Conda使用
+---
+
+```bash
+conda deactivate
+conda remove -n Hunyuan3D-2_3 --all
+conda remove -n Hunyuan3D-2 --all
+
+conda env list
+
+conda activate hunyuan3d-2
+
+python install.py --onnxruntime=cuda
+
+conda activate facefusion
+
+cd D:\Users\Sherlock\PycharmProjects\facefusion
+
+python facefusion.py run --open-browser
+```
+
+
+解除限制
+找到 content_analyser.py
+修改 PROBABILITY_LIMIT=1
