@@ -17,9 +17,17 @@ Claude 添加MCP 是根据项目路径加的
 
 运行：
 
+
 ```bash
-claude mcp add github -e GITHUB_PERSONAL_ACCESS_TOKEN="your_github_pat" -- github-mcp-server stdio
+claude mcp add github -e GITHUB_PERSONAL_ACCESS_TOKEN="" -- github-mcp-server stdio
 ```
+
+环境变量 windows
+
+```bash
+claude mcp add github -e GITHUB_PERSONAL_ACCESS_TOKEN=$env:GITHUB_PAT -- github-mcp-server stdio
+```
+
 
 重启 Claude Code
 
