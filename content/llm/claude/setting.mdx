@@ -8,7 +8,7 @@ description: Claude Code 设置
 
 编辑或新建 ~/.claude.json（Windows 路径：C:\Users\<用户名>\.claude.json），将 hasCompletedOnboarding 设为 true，跳过 Anthropic 官方登录验证。
 
- 
+
 ```json
 {
   "hasCompletedOnboarding": true
@@ -36,6 +36,27 @@ description: Claude Code 设置
     "ANTHROPIC_MODEL": "qwen3.6-plus",
     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
   },
+  "statusLine": {
+    "command": "npx -y ccstatusline@latest",
+    "refreshInterval": 3,
+    "type": "command"
+  }
+}
+```
+
+### 通过配置
+
+```json
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "env": {
+    "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
+     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "autoUpdatesChannel": "latest",
   "statusLine": {
     "command": "npx -y ccstatusline@latest",
     "refreshInterval": 3,
