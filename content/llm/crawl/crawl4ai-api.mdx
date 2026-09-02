@@ -1,0 +1,625 @@
+---
+title: Crawl4AI 核心接口
+description: 爬虫包
+---
+
+
+官方 Docker 文档目前把接口分成核心爬取、专用提取、异步任务、监控等几类。([GitHub][1])
+
+## 1. 核心接口
+
+| 接口                     | 方法       | 用途                          |
+| ---------------------- | -------- | --------------------------- |
+| `/crawl`               | POST     | **核心爬取接口**                  |
+| `/crawl/stream`        | POST     | **流式爬取**                    |
+| `/crawl/job/{task_id}` | GET      | 查询异步 Crawl 任务               |
+| `/md`                  | GET/POST | 获取 Markdown                 |
+| `/html`                | POST     | 获取预处理 HTML                  |
+| `/screenshot`          | POST     | 网页截图                        |
+| `/pdf`                 | POST     | 网页转 PDF                     |
+| `/execute_js`          | POST     | 执行 JavaScript               |
+| `/ask`                 | POST     | 查询 Crawl4AI Library Context |
+
+其中 `/crawl` 是你最应该关注的接口，它可以配置 `BrowserConfig` 和 `CrawlerRunConfig`，支持多 URL、缓存、Markdown 生成、深度爬取等。([GitHub][1])
+
+---
+
+# 2. `/crawl` —— 最核心
+
+```http
+POST http://localhost:11235/crawl
+```
+
+例如：
+
+```json
+{
+  "urls": [
+    "https://example.com"
+  ]
+}
+```
+
+也可以带配置：
+
+```json
+{
+  "urls": [
+    "https://example.com"
+  ],
+  "browser_config": {
+    "type": "BrowserConfig",
+    "params": {
+      "headless": true
+    }
+  },
+  "crawler_config": {
+    "type": "CrawlerRunConfig",
+    "params": {
+      "cache_mode": "bypass"
+    }
+  }
+}
+```
+
+官方当前 Docker API 要求复杂配置使用：
+
+```json
+{
+  "type": "ClassName",
+  "params": {}
+}
+```
+
+这种结构。([GitHub][2])
+
+ 返回
+
+一般会得到：
+
+```json
+{
+  "results": [
+    {
+      "url": "https://example.com",
+      "success": true,
+      "markdown": "...",
+      "html": "...",
+      "links": {},
+      "media": {}
+    }
+  ]
+}
+```
+
+所以如果你只想：
+
+> 给我一个 URL → 返回网页 Markdown
+
+**直接用 `/crawl` 就行。**
+
+---
+
+# 3. `/crawl/stream` —— 流式
+
+```http
+POST /crawl/stream
+```
+
+适合：
+
+```text
+URL1
+URL2
+URL3
+...
+```
+
+爬一个返回一个。
+
+例如：
+
+```text
+POST /crawl/stream
+
+       ↓
+
+URL 1 → result
+URL 2 → result
+URL 3 → result
+URL 4 → result
+```
+
+特别适合 Agent，因为不需要等所有 URL 都爬完。
+
+官方 Docker 文档明确提供了这个接口。([GitHub][1])
+
+**不过你要注意版本。**
+
+Crawl4AI 在 2026 年 6 月曾经修复 `/crawl/stream` 的 SSRF 安全问题，受影响版本是 `<=0.8.9`，修复版本是 `0.9.0`。([GitHub][3])
+
+所以如果你 Docker 还是旧版本，建议升级。
+
+---
+
+# 4. `/md` —— 直接拿 Markdown
+
+```http
+GET /md
+```
+
+或者对应 POST 调用。
+
+它的目的就是：
+
+```text
+网页
+ ↓
+Crawl4AI
+ ↓
+Markdown
+```
+
+这对于 LLM 非常方便。
+
+例如：
+
+```text
+https://example.com/article
+```
+
+直接变成：
+
+```markdown
+# Article Title
+
+这是一篇文章……
+
+## 第一部分
+
+……
+```
+
+官方 Docker 示例也把 Markdown endpoint 单独列出来，并支持不同 filter 类型，例如 `raw`、`fit`、`bm25`、`llm`。([GitHub][4])
+
+---
+
+# 5. `/html` —— 获取处理后的 HTML
+
+```http
+POST /html
+```
+
+这个和 `/md` 的区别：
+
+```text
+/md
+ ↓
+Markdown
+
+/html
+ ↓
+预处理后的 HTML
+```
+
+如果你后面准备自己：
+
+```text
+HTML
+ ↓
+BeautifulSoup
+ ↓
+自定义解析
+```
+
+那么 `/html` 更合适。
+
+官方把它描述为用于 schema extraction 的预处理 HTML。([GitHub][1])
+
+---
+
+# 6. `/screenshot` —— 截图
+
+```http
+POST /screenshot
+```
+
+可以让 Crawl4AI：
+
+```text
+网页
+ ↓
+Chromium
+ ↓
+Screenshot
+ ↓
+PNG
+```
+
+这对于：
+
+* AI 看网页
+* 网页视觉分析
+* 页面监控
+* 截图存档
+* Agent 判断页面状态
+
+都比较有用。
+
+新版 Docker 服务还会返回 artifact ID/URL，而不是让客户端指定 `output_path`。([GitHub][5])
+
+---
+
+# 7. `/pdf` —— 网页转 PDF
+
+```http
+POST /pdf
+```
+
+例如：
+
+```text
+网页
+ ↓
+Chromium
+ ↓
+PDF
+```
+
+适合：
+
+* 网页保存
+* 文档归档
+* AI 文档处理
+* 网页打印
+
+---
+
+# 8. `/execute_js` —— 执行 JavaScript
+
+这个就是你上一条问题里最容易碰到的地方。
+
+```http
+POST /execute_js
+```
+
+用途：
+
+```text
+打开网页
+   ↓
+执行 JS
+   ↓
+获取结果
+```
+
+例如理论上：
+
+```javascript
+document.querySelector(".load-more").click()
+```
+
+然后：
+
+```text
+等待
+ ↓
+重新获取页面
+```
+
+但是这里要特别注意：
+
+**现在 Crawl4AI 对来自 Docker HTTP API 的“不可信请求”有安全限制。**
+
+所以你刚才遇到：
+
+```text
+field 'code' is not permitted on CrawlerRunConfig
+from an untrusted request
+```
+
+正是这一类安全机制。
+
+官方当前 Docker API 的代码中会明确以 `Provenance.UNTRUSTED` 加载 `BrowserConfig` / `CrawlerRunConfig`。([GitHub][6])
+
+所以不能把任意 Python/Python-like `code` 直接塞进配置里执行。
+
+---
+
+# 9. `/llm` —— LLM 提取
+
+这个很有意思。
+
+它不是简单：
+
+```text
+网页 → Markdown
+```
+
+而是：
+
+```text
+网页
+ ↓
+Crawl4AI
+ ↓
+LLM
+ ↓
+结构化数据
+```
+
+例如你给：
+
+```text
+URL:
+
+https://example.com/products
+```
+
+再告诉它：
+
+```text
+提取商品名称、价格、评分
+```
+
+最终：
+
+```json
+{
+  "products": [
+    {
+      "name": "xxx",
+      "price": "$99",
+      "rating": 4.8
+    }
+  ]
+}
+```
+
+这非常适合 AI Agent。
+
+---
+
+# 10. `/llm/job` —— 异步 LLM 提取
+
+如果任务比较重：
+
+```http
+POST /llm/job
+```
+
+返回：
+
+```json
+{
+  "task_id": "llm_xxx",
+  "status": "processing"
+}
+```
+
+然后：
+
+```http
+GET /llm/{task_id}
+```
+
+查询结果。
+
+官方当前 Docker API 就是这么设计异步 LLM extraction job 的。([GitHub][6])
+
+还支持 webhook：
+
+```text
+你的服务
+   ↓
+POST /llm/job
+   ↓
+Crawl4AI
+   ↓
+后台执行
+   ↓
+完成
+   ↓
+Webhook → 你的服务
+```
+
+---
+
+# 11. `/hooks/info`
+
+如果你使用新版 Hooks：
+
+```http
+GET /hooks/info
+```
+
+可以查询 Hook 参数 schema。
+
+新版迁移文档特别提到了这个接口，并说明任意 hook code 不再通过普通 HTTP API 暴露；自托管 in-process build 才可以使用任意 hook code。([GitHub][5])
+
+---
+
+# 12. `/schema`
+
+这个对你现在特别重要：
+
+```http
+GET /schema
+```
+
+它可以查看：
+
+> **你当前 Docker 镜像实际支持哪些 API 参数。**
+
+所以不要完全相信网上旧教程。
+
+直接：
+
+```bash
+curl http://localhost:11235/schema
+```
+
+或者浏览器：
+
+```text
+http://localhost:11235/schema
+```
+
+官方 Docker 文档也把 `/schema` 作为完整 API schema 接口。([GitHub][1])
+
+---
+
+# 13. `/health`
+
+健康检查：
+
+```http
+GET /health
+```
+
+例如：
+
+```bash
+curl http://localhost:11235/health
+```
+
+用来判断：
+
+```text
+Docker
+ ↓
+Crawl4AI
+ ↓
+是否正常
+```
+
+---
+
+# 14. `/metrics`
+
+```http
+GET /metrics
+```
+
+提供 Prometheus metrics。
+
+比如：
+
+```text
+请求数
+请求耗时
+成功率
+资源使用
+```
+
+官方 Docker 文档目前也将 `/metrics` 列为监控接口。([GitHub][1])
+
+---
+
+# 15. Monitor API
+
+如果你要把 Crawl4AI 当长期运行的服务，还有：
+
+```text
+GET  /monitor/health
+GET  /monitor/requests
+GET  /monitor/browsers
+GET  /monitor/endpoints/stats
+GET  /monitor/timeline
+GET  /monitor/logs/janitor
+GET  /monitor/logs/errors
+
+POST /monitor/actions/cleanup
+POST /monitor/actions/kill_browser
+POST /monitor/actions/restart_browser
+POST /monitor/stats/reset
+```
+
+这些主要不是爬网页，而是：
+
+> **监控 Crawl4AI 服务本身。**
+
+([GitHub][7])
+
+其中修改/管理类的 monitor action 现在需要 admin scope。([GitHub][5])
+
+---
+
+# 16. MCP 接口
+
+如果你不是自己写 HTTP，而是想让 **Claude Code / Copilot / AI Agent** 使用 Crawl4AI，那么还有 MCP。
+
+官方当前列出的 MCP Tools：
+
+| MCP Tool     | 用途                          |
+| ------------ | --------------------------- |
+| `md`         | 网页 → Markdown               |
+| `html`       | 网页 → HTML                   |
+| `screenshot` | 网页截图                        |
+| `pdf`        | 网页 → PDF                    |
+| `execute_js` | 执行 JS                       |
+| `crawl`      | 多 URL 爬取                    |
+| `ask`        | 查询 Crawl4AI Library Context |
+
+官方还提供：
+
+```text
+http://localhost:11235/mcp/schema
+```
+
+查看 MCP 工具 schema。([GitHub][1])
+
+---
+
+# 最重要的几个接口
+
+如果你是准备拿 Crawl4AI 做 **AI Agent 的网页搜索/网页读取工具**，其实不用记全部。
+
+我建议你重点理解这 7 个：
+
+```text
+                 Crawl4AI
+                    │
+       ┌────────────┼────────────┐
+       │            │            │
+     /crawl        /md          /html
+       │            │            │
+    完整爬取     Markdown      HTML
+       │
+       ├──── /screenshot
+       │
+       ├──── /pdf
+       │
+       ├──── /execute_js
+       │
+       └──── /llm
+```
+
+### 如果你的目标是 AI Agent
+
+我会这样选：
+
+| 需求                 | 推荐                   |
+| ------------------ | -------------------- |
+| 普通网页读取             | **`/crawl`**         |
+| 网页转 Markdown 给 LLM | **`/md`** 或 `/crawl` |
+| 自己解析 HTML          | **`/html`**          |
+| 截图给视觉模型            | **`/screenshot`**    |
+| 网页转 PDF            | **`/pdf`**           |
+| 动态网页 / JS          | **`/crawl` + 配置**    |
+| JS 操作网页            | **`/execute_js`**    |
+| 网页 → 结构化 JSON      | **`/llm`**           |
+| 多 URL 并发/流式        | **`/crawl/stream`**  |
+| Claude Code / MCP  | **MCP tools**        |
+
+**另外，你前面那个 `code is not permitted on CrawlerRunConfig from an untrusted request`，我建议你不要通过修改安全检查来绕过。** 新版 Docker API 本身就是把 HTTP 请求视为 untrusted，并对可执行代码进行限制。([GitHub][6])
+
+如果你愿意，我下一步可以直接给你整理一份 **「Crawl4AI Docker 全部 HTTP API + 每个接口可直接复制的 curl/JSON 示例」**，尤其把 **`/crawl` 的 `BrowserConfig`、`CrawlerRunConfig`、Markdown、JS、深度爬取、LLM 提取**这些参数讲清楚。
+
+[1]: https://github.com/unclecode/crawl4ai/blob/main/deploy/docker/README.md?utm_source=chatgpt.com "crawl4ai/deploy/docker/README.md at main · unclecode/crawl4ai · GitHub"
+[2]: https://github.com/unclecode/crawl4ai/blob/main/docs/examples/docker_config_obj.py?utm_source=chatgpt.com "crawl4ai/docs/examples/docker_config_obj.py at main · unclecode/crawl4ai · GitHub"
+[3]: https://github.com/unclecode/crawl4ai/security/advisories/GHSA-wm69-2pc3-rmmf?utm_source=chatgpt.com "Unauthenticated SSRF on the Docker server streaming crawl path (/crawl/stream) · Advisory · unclecode/crawl4ai · GitHub"
+[4]: https://github.com/unclecode/crawl4ai/blob/main/docs/examples/docker_python_rest_api.py?utm_source=chatgpt.com "crawl4ai/docs/examples/docker_python_rest_api.py at main · unclecode/crawl4ai · GitHub"
+[5]: https://github.com/unclecode/crawl4ai/blob/main/deploy/docker/MIGRATION.md?utm_source=chatgpt.com "crawl4ai/deploy/docker/MIGRATION.md at main · unclecode/crawl4ai · GitHub"
+[6]: https://github.com/unclecode/crawl4ai/blob/main/deploy/docker/api.py?utm_source=chatgpt.com "crawl4ai/deploy/docker/api.py at main · unclecode/crawl4ai · GitHub"
+[7]: https://github.com/unclecode/crawl4ai/blob/main/docs/blog/release-v0.7.7.md?utm_source=chatgpt.com "crawl4ai/docs/blog/release-v0.7.7.md at main · unclecode/crawl4ai · GitHub"

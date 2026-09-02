@@ -1,0 +1,74 @@
+---
+title: Crawl4AI
+description: 爬虫包
+---
+
+[Github地址](https://github.com/unclecode/crawl4AI)
+
+## Docker部署
+
+```bash
+docker pull unclecode/crawl4ai:latest
+```
+
+
+```bash
+docker run -d \
+  -p 11235:11235 \
+  --name crawl4ai \
+  --shm-size=3g \
+  unclecode/crawl4ai:latest
+```
+
+
+## Railway 部署
+
+
+### docker 端口参数
+
+通过设置变量 `PORT` 来指定应用程序的端口。例如：
+
+```bash
+PORT=8080
+```
+
+### 在 Railway 中生成并获取公网域名
+
+打开 Railway 控制台，进入你的 Crawl4AI 项目。
+
+点击你的 Crawl4AI 服务，进入 Settings 选项卡。
+
+找到 Networking（网络配置）区域。
+
+点击 Generate Domain（生成域名）按钮。
+
+Railway 会为你生成一个类似这样的公网网址：
+
+```bash
+https://crawl4ai-production-xxxx.up.railway.app
+```
+
+### 无法访问应用的原因
+
+
+请按照以下方法在 Railway 中修改：
+
+解决方法
+
+需要在 Railway 中告诉 Crawl4AI/Gunicorn 将服务绑定到 0.0.0.0。
+
+修改/添加环境变量 (Variables)
+在 Railway 项目的 Variables 中添加以下环境变量：
+
+PORT = 11235
+
+HOST = 0.0.0.0
+
+
+### Token
+
+另外 还需要设置token，随机生成一个随机字符串作为 token，并将其设置为环境变量 `CRAWL4AI_API_TOKEN`。例如：
+
+```bash
+CRAWL4AI_API_TOKEN=xxxxxxxxxxxx
+```
