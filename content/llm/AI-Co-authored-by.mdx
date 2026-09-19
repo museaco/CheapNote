@@ -1,0 +1,80 @@
+---
+title: 如何取消 AI Co-authored-by
+description: 如何取消 AI Co-authored-by
+---
+
+
+
+
+取消 Git 提交信息（Commit Message）中的 `Co-authored-by: AI` 签名，具体操作取决于你使用的是哪款 AI 辅助开发工具：
+
+---
+
+### 1. VS Code (GitHub Copilot)
+
+如果你使用的是 VS Code 的 Git 界面或 GitHub Copilot Extension：
+
+1. 打开 VS Code 设置：按 `Ctrl + ,`（Windows/Linux）或 `Cmd + ,`（macOS）。
+2. 在顶部搜索框中输入：`Git: Add AI Co Author`。
+3. 将下拉选项从 `chatAndAgent` 修改为 **`off`**。
+
+> **快捷修改：** 也可以直接在 `settings.json` 中添加：
+> ```json
+> "git.addAICoAuthor": "off"
+>
+> ```
+>
+>
+
+---
+
+### 2. Cursor
+
+如果你使用的是 Cursor 编辑器：
+
+1. 打开设置（Settings）: 按 `Ctrl + ,` 或 `Cmd + ,`。
+2. 搜索 `Agents` 或 `Attribution`。
+3. 找到 **Include Co-Author Information** / **Attribution** 相关选项并取消勾选关闭。
+
+---
+
+### 3. Claude Code CLI
+
+如果你使用的是 Anthropic 的 Claude Code 命令行工具：
+
+* **全局生效（所有项目）：**
+在用户配置目录中的配置文件 `~/.claude/settings.json` 中添加/修改：
+```json
+{
+  "includeCoAuthoredBy": false
+}
+
+```
+
+
+* **单个项目生效：**
+在项目根目录下的 `settings.local.json` 中添加：
+```json
+{
+  "includeCoAuthoredBy": false
+}
+
+```
+
+
+
+---
+
+### 4. Windsurf / Codeium
+
+如果你使用的是 Windsurf 编辑器：
+
+1. 进入 **Settings** -> **Windsurf Settings**。
+2. 搜索 `Co-Author` 或 `Git`。
+3. 关闭自动追加 AI 作者签名的开关即可。
+
+---
+
+### 💡 已经提交的记录如何清理？
+
+如果以前的 commit 记录里已经带有了 `Co-authored-by` 签名，但尚未 push，可以通过 `git commit --amend` 手动编辑最新的提交信息并删掉该行。
